@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #000;
+}
+
+.font-pixel {
+  font-family: 'basis33', monospace;
+}
+
+/* Locked single-viewport composition. On short phones (e.g. iPhone SE) the content
+   can't physically fit, so there — and only there — let the page grow and scroll. */
+@media (max-width: 767px) and (max-height: 760px) {
+  .page-root {
+    height: auto;
+    min-height: 100svh;
+  }
+}
