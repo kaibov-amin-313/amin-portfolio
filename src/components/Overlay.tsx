@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import Logo from './Logo'
 
@@ -14,6 +14,8 @@ export function stagger(open: boolean, i: number) {
   }
 }
 
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 type OverlayProps = {
   open: boolean
   onClose: () => void
@@ -24,15 +26,49 @@ type OverlayProps = {
 }
 
 export default function Overlay({ open, onClose, label, children, centered }: OverlayProps) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+
+  // Focus management: move focus in on open, trap Tab inside, restore it on close.
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    const dialog = dialogRef.current
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    closeRef.current?.focus({ preventScroll: true })
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab' || !dialog) return
+      const items = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE))
+      if (!items.length) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      // Only restore if focus is still inside this dialog (e.g. not moved to another overlay).
+      // (Once the dialog turns inert the browser may already have dropped focus to <body>.)
+      const active = document.activeElement
+      if (!active || active === document.body || dialog?.contains(active)) {
+        previouslyFocused?.focus({ preventScroll: true })
+      }
+    }
   }, [open, onClose])
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={label}
@@ -42,18 +78,21 @@ export default function Overlay({ open, onClose, label, children, centered }: Ov
         open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
-      <div className="flex items-center justify-between px-6 py-6 md:px-10 lg:px-14">
+      <div className="flex items-center justify-between px-5 py-6 sm:px-6 md:px-10 lg:px-14">
         <Logo />
         <button
+          ref={closeRef}
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={`Close ${label.toLowerCase()}`}
           className="p-2 transition-opacity hover:opacity-70"
         >
           <X size={24} />
         </button>
       </div>
       <div
+        // Scrollable panel must be reachable by keyboard so it can be scrolled with arrow keys.
+        tabIndex={centered ? undefined : 0}
         className={
           centered
             ? 'flex flex-1 flex-col items-center justify-center gap-8'

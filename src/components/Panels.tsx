@@ -1,8 +1,8 @@
 import { ArrowUpRight } from 'lucide-react'
-import { AWARDS, EMAIL, GITHUB, PROJECTS, SERVICES } from '../content'
+import { AWARDS, EDUCATION, EMAIL, GITHUB, PROJECTS, SECURITY, SKILLS } from '../content'
 import { stagger } from './Overlay'
 
-const label = 'font-pixel text-base uppercase tracking-widest text-white/50'
+const label = 'font-pixel text-base uppercase tracking-widest text-white/60'
 
 function PanelTitle({ open, top, pixel }: { open: boolean; top: string; pixel: string }) {
   const s = stagger(open, 0)
@@ -62,7 +62,7 @@ export function ProjectsPanel({ open }: { open: boolean }) {
                       key={l.href}
                       href={l.href}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="flex items-center gap-2 border border-white/30 bg-white/5 px-4 py-2 text-xs tracking-wider backdrop-blur-sm transition-colors hover:bg-white/10"
                     >
                       {l.label} <ArrowUpRight size={14} />
@@ -126,6 +126,10 @@ export function AboutPanel({ open }: { open: boolean }) {
       body: 'Quality over quantity. Consistency over decoration. Minimalism over complexity. Long-term thinking over shortcuts.',
     },
     {
+      title: 'Education',
+      body: `${EDUCATION.school} — ${EDUCATION.status}. ${EDUCATION.tests}.`,
+    },
+    {
       title: 'Next',
       body: 'Master software architecture, build products used by thousands of people, and start companies around technology.',
     },
@@ -149,7 +153,7 @@ export function AboutPanel({ open }: { open: boolean }) {
             <div {...s} className={`${s.className} sm:col-span-2`}>
               <p className={`${label} mb-3`}>Stack</p>
               <p className="text-sm leading-relaxed text-white/70">
-                {SERVICES.join(' • ')} • Git • Vercel • Prisma • Neon
+                {SKILLS.join(' • ')} • Git • Vercel • Prisma • Neon
               </p>
             </div>
           )
@@ -178,7 +182,7 @@ export function TalkPanel({ open }: { open: boolean }) {
                 <a
                   href={it.href}
                   target={it.href.startsWith('http') ? '_blank' : undefined}
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="text-2xl tracking-wide transition-opacity hover:opacity-70 sm:text-3xl"
                 >
                   {it.v}
@@ -187,6 +191,35 @@ export function TalkPanel({ open }: { open: boolean }) {
                 <p className="text-2xl tracking-wide sm:text-3xl">{it.v}</p>
               )}
             </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+export function SecurityPanel({ open }: { open: boolean }) {
+  return (
+    <div className="mx-auto max-w-5xl">
+      <PanelTitle open={open} top="Built" pixel="SECURE" />
+      <div className="space-y-10">
+        {SECURITY.map((g, i) => {
+          const s = stagger(open, i + 1)
+          return (
+            <section key={g.title} {...s} className={`${s.className} border-t border-white/15 pt-6`}>
+              <h3 className={`${label} mb-3`}>{g.title}</h3>
+              <p className="max-w-3xl text-base leading-relaxed text-white/90">{g.intro}</p>
+              {g.points.length > 0 && (
+                <ul className="mt-4 space-y-2 text-sm leading-relaxed text-white/75">
+                  {g.points.map((pt) => (
+                    <li key={pt} className="flex gap-2">
+                      <span className="text-white/40" aria-hidden="true">*</span>
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           )
         })}
       </div>

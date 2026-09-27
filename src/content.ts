@@ -1,7 +1,8 @@
 export const EMAIL = 'aminkaibov0@gmail.com'
 export const GITHUB = 'https://github.com/kaibov-amin-313'
 
-export type PanelId = 'about' | 'projects' | 'awards' | 'talk'
+export const PANEL_IDS = ['about', 'projects', 'awards', 'security', 'talk'] as const
+export type PanelId = (typeof PANEL_IDS)[number]
 
 export type NavLink =
   | { label: string; panel: PanelId }
@@ -11,16 +12,18 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'ABOUT', panel: 'about' },
   { label: 'PROJECTS', panel: 'projects' },
   { label: 'AWARDS', panel: 'awards' },
+  { label: 'SECURITY', panel: 'security' },
   { label: 'GITHUB', href: GITHUB },
   { label: 'TALK', panel: 'talk' },
 ]
 
-export const SERVICES = [
-  'Full-stack Dev (React/Nextjs)',
-  'UX/UI Design',
+export const SKILLS = [
+  'Full-stack (React / Next.js)',
+  'UI/UX Design',
   'Node.js / PostgreSQL',
   'Applied ML & Forecasting',
   'IoT Sensor Networks',
+  'Secure API Design',
   'Motion & Animation (GSAP)',
 ]
 
@@ -137,5 +140,47 @@ export const AWARDS: Award[] = [
     detail:
       'Certificate for active participation in the International Scientific & Practical Conference among university students and school pupils, held by the Department of Machines & Apparatus of Production Processes, Faculty of Intelligent & Engineering Systems.',
     date: '2026',
+  },
+]
+
+/** Prize = placed 1st–3rd; everything else is a participation certificate. */
+export const PRIZES = AWARDS.filter((a) => /^[123](st|nd|rd)$/.test(a.count))
+export const CERTIFICATES = AWARDS.filter((a) => !PRIZES.includes(a))
+
+export const EDUCATION = {
+  school: 'KGU Lyceum No. 166',
+  status: 'final year, graduating 2027',
+  tests: 'Preparing for IELTS; SAT scheduled for November 2026',
+}
+
+export type SecurityGroup = { title: string; intro: string; points: string[] }
+
+/** Only measures that are actually implemented — each one can be checked in the code. */
+export const SECURITY: SecurityGroup[] = [
+  {
+    title: 'In AUA (backend)',
+    intro: 'The sensor network accepts data from physical devices over the internet, so every packet is treated as untrusted.',
+    points: [
+      'Each sensor packet is signed with HMAC-SHA256 using a per-device secret; the server verifies it in constant time (timingSafeEqual) and rejects malformed signatures before comparing',
+      'Admin endpoints (calibration, mock controls) require a bearer token and fail closed — if the token is not configured, access is denied, never opened',
+      'Rate limiting (120 requests / minute per IP) and a CORS allow-list',
+      'JSON-schema validation on API routes and parameterized SQL (prepared statements) only',
+      'Secrets live only in environment variables and are excluded from git',
+    ],
+  },
+  {
+    title: 'On this site',
+    intro: 'A static site still has an attack surface — mostly the browser.',
+    points: [
+      'Strict Content-Security-Policy: scripts, fonts and media only from this origin',
+      'Clickjacking protection (frame-ancestors none, X-Frame-Options DENY), HSTS, nosniff, strict Referrer-Policy and Permissions-Policy',
+      'Zero third-party requests — fonts are self-hosted, no trackers or analytics',
+      'A security.txt contact at /.well-known/security.txt and 0 known vulnerabilities in dependencies (npm audit)',
+    ],
+  },
+  {
+    title: 'Learning',
+    intro: 'Self-studying application security through courses and books, alongside neural-network foundations and AI system architecture — the two fields I am applying to.',
+    points: [],
   },
 ]

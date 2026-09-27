@@ -1,0 +1,4 @@
+Contact: mailto:aminkaibov0@gmail.com
+Expires: 2027-09-27T00:00:00.000Z
+Preferred-Languages: en, ru
+Canonical: https://amin-kaibov.vercel.app/.well-known/security.txt
