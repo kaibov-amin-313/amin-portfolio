@@ -4,7 +4,7 @@ import Logo from './components/Logo'
 import Overlay, { stagger } from './components/Overlay'
 import { AboutPanel, AwardsPanel, ProjectsPanel, TalkPanel } from './components/Panels'
 import { AWARDS, EMAIL, NAV_LINKS, SERVICES, type NavLink, type PanelId } from './content'
-import heroBg from './assets/hero-bg.jpg'
+import heroVideo from './assets/hero-bg.mp4'
 
 const pixelWord = 'font-pixel font-normal text-[1.25em] inline-block leading-none align-baseline'
 
@@ -29,10 +29,13 @@ export default function App() {
 
   return (
     <div className="page-root relative h-screen w-full overflow-hidden bg-black text-white">
-      <img
+      <video
         className="absolute inset-0 h-full w-full object-cover object-[center_10%] lg:object-[center_20%]"
-        src={heroBg}
-        alt=""
+        src={heroVideo}
+        autoPlay
+        muted
+        loop
+        playsInline
         aria-hidden="true"
       />
       <div className="pointer-events-none absolute inset-0 bg-black/55 lg:hidden" />
