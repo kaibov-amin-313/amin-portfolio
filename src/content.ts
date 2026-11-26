@@ -1,20 +1,13 @@
 export const EMAIL = 'aminkaibov0@gmail.com'
 export const GITHUB = 'https://github.com/kaibov-amin-313'
+export const SITE_URL = 'https://amin-kaibov.vercel.app'
 
-export const PANEL_IDS = ['about', 'projects', 'awards', 'security', 'talk'] as const
-export type PanelId = (typeof PANEL_IDS)[number]
-
-export type NavLink =
-  | { label: string; panel: PanelId }
-  | { label: string; href: string }
-
-export const NAV_LINKS: NavLink[] = [
-  { label: 'ABOUT', panel: 'about' },
-  { label: 'PROJECTS', panel: 'projects' },
-  { label: 'AWARDS', panel: 'awards' },
-  { label: 'SECURITY', panel: 'security' },
-  { label: 'GITHUB', href: GITHUB },
-  { label: 'TALK', panel: 'talk' },
+export const NAV = [
+  { label: 'Work', href: '#work' },
+  { label: 'Awards', href: '#awards' },
+  { label: 'Security', href: '#security' },
+  { label: 'About', href: '#about' },
+  { label: 'Contact', href: '#contact' },
 ]
 
 export const SKILLS = [
@@ -27,7 +20,17 @@ export const SKILLS = [
   'Motion & Animation (GSAP)',
 ]
 
+export const STACK = [...SKILLS, 'Git', 'Vercel', 'Prisma', 'Neon']
+
+/** The hero clip is split into chapters; each caption shows while its part of the clip plays. */
+export const HERO_CHAPTERS = [
+  { index: '01', title: 'Design', body: 'Interfaces where typography, spacing and motion do the work.' },
+  { index: '02', title: 'Engineering', body: 'Full-stack systems — from ESP8266 sensors to the pixel.' },
+  { index: '03', title: 'Security', body: 'Every packet is untrusted until it proves otherwise.' },
+]
+
 export type Project = {
+  slug: string
   index: string
   name: string
   pixelWord: string
@@ -36,17 +39,21 @@ export type Project = {
   points: string[]
   stack: string[]
   links: { label: string; href: string }[]
-  meta: string
+  meta: string[]
+  year: string
+  role: string
+  award?: string
 }
 
 export const PROJECTS: Project[] = [
   {
+    slug: 'aua',
     index: '01',
     name: 'AUA',
     pixelWord: 'AIR',
     tagline: 'Hyperlocal air-quality monitoring for Almaty',
     description:
-      'A full platform that fuses a self-built sensor network with open weather data to give residents street-level air quality — not one number for the whole city. Won 1st place at TechVision Hackathon 2026.',
+      'A full platform that fuses a self-built sensor network with open weather data to give residents street-level air quality — not one number for the whole city.',
     points: [
       'Own station network — ESP8266 + MQ-135 gas sensors, T/RH compensation',
       'Sensor fusion with Open-Meteo background data (IDW / gaussian)',
@@ -56,12 +63,16 @@ export const PROJECTS: Project[] = [
     ],
     stack: ['React', 'TypeScript', 'Vite', 'Tailwind', 'Leaflet', 'Node.js', 'Fastify', 'SQLite', 'ESP8266'],
     links: [
-      { label: 'LIVE SITE', href: 'https://aua-almaty.vercel.app' },
-      { label: 'SOURCE', href: 'https://github.com/kaibov-amin-313/-hilli-express' },
+      { label: 'Live site', href: 'https://aua-almaty.vercel.app' },
+      { label: 'Source', href: 'https://github.com/kaibov-amin-313/-hilli-express' },
     ],
-    meta: 'Smart City • GreenTech • B2G',
+    meta: ['Smart City', 'GreenTech', 'B2G'],
+    year: '2026',
+    role: 'Full-stack, hardware, ML',
+    award: 'TechVision Hackathon 2026 — 1st place',
   },
   {
+    slug: 'bashir-co',
     index: '02',
     name: 'BASHIR&CO',
     pixelWord: 'LUXURY',
@@ -75,14 +86,15 @@ export const PROJECTS: Project[] = [
       'Editorial art direction — quality through restraint',
     ],
     stack: ['React', 'TypeScript', 'Tailwind', 'GSAP', 'ScrollTrigger'],
-    links: [{ label: 'LIVE SITE', href: 'https://bashir-co.vercel.app' }],
-    meta: 'Luxury • Editorial • Motion',
+    links: [{ label: 'Live site', href: 'https://bashir-co.vercel.app' }],
+    meta: ['Luxury', 'Editorial', 'Motion'],
+    year: '2026',
+    role: 'Design, front-end, motion',
   },
 ]
 
 export type Award = {
-  short: string
-  count: string
+  rank: string
   title: string
   detail: string
   date: string
@@ -90,68 +102,83 @@ export type Award = {
 
 export const AWARDS: Award[] = [
   {
-    short: 'TechVision',
-    count: '1st',
-    title: 'TechVision Hackathon 2026 — 1st place',
-    detail:
-      'Smart City & GreenTech track. Team Chilli Express, Nazarbayev University, Astana. Project: AUA.',
+    rank: '1st',
+    title: 'TechVision Hackathon 2026',
+    detail: 'Smart City & GreenTech track. Team Chilli Express, Nazarbayev University, Astana. Project: AUA.',
     date: '27.07.2026',
   },
   {
-    short: 'Future w/ AI',
-    count: '1st',
-    title: 'Future with AI 2025 — 1st place',
+    rank: '1st',
+    title: 'Future with AI 2025',
     detail: 'International hackathon, UX/UI track, Senior level.',
     date: '2025',
   },
   {
-    short: 'ZERTTE',
-    count: '2nd',
-    title: 'ZERTTE Championship 2025 — 2nd place',
+    rank: '2nd',
+    title: 'ZERTTE Championship 2025',
     detail: 'Microcontrollers category.',
     date: '2025',
   },
   {
-    short: 'Robotics for Good',
-    count: 'Participant',
-    title: 'Robotics for Good Youth Challenge — Participant',
-    detail: 'AI for Good Impact Initiative × Haileybury Almaty × DARYN.',
-    date: '22.11.2025',
-  },
-  {
-    short: 'Ionosphere Inst.',
-    count: 'Cert',
-    title: 'Institute of Ionosphere RK — Certificate',
-    detail: 'Certificate of participation.',
-    date: '28.05.2025',
-  },
-  {
-    short: 'Teniz AI Conf.',
-    count: '2nd',
-    title: 'AI-Physics-Math-Chemistry-Tech Conference — 2nd place',
+    rank: '2nd',
+    title: 'AI-Physics-Math-Chemistry-Tech Conference',
     detail:
       'V School-Student Scientific & Technical Conference "Artificial Intelligence – Physics – Mathematics – Chemistry – Technics and Technology," organized by Teniz. With Osman Malsagov. Almaty.',
     date: '11.03.2026',
   },
   {
-    short: 'ATU',
-    count: 'Cert',
-    title: 'Almaty Technological University — Certificate',
+    rank: 'Part.',
+    title: 'Robotics for Good Youth Challenge',
+    detail: 'AI for Good Impact Initiative × Haileybury Almaty × DARYN.',
+    date: '22.11.2025',
+  },
+  {
+    rank: 'Cert',
+    title: 'Institute of Ionosphere RK',
+    detail: 'Certificate of participation.',
+    date: '28.05.2025',
+  },
+  {
+    rank: 'Cert',
+    title: 'Almaty Technological University',
     detail:
-      'Certificate for active participation in the International Scientific & Practical Conference among university students and school pupils, held by the Department of Machines & Apparatus of Production Processes, Faculty of Intelligent & Engineering Systems.',
+      'Active participation in the International Scientific & Practical Conference among university students and school pupils — Department of Machines & Apparatus of Production Processes, Faculty of Intelligent & Engineering Systems.',
     date: '2026',
   },
 ]
 
-/** Prize = placed 1st–3rd; everything else is a participation certificate. */
-export const PRIZES = AWARDS.filter((a) => /^[123](st|nd|rd)$/.test(a.count))
+export const PRIZES = AWARDS.filter((a) => /^[123](st|nd|rd)$/.test(a.rank))
 export const CERTIFICATES = AWARDS.filter((a) => !PRIZES.includes(a))
 
-export const EDUCATION = {
-  school: 'KGU Lyceum No. 166',
-  status: 'final year, graduating 2027',
-  tests: 'Preparing for IELTS; SAT scheduled for November 2026',
-}
+export const STATS = [
+  { value: PRIZES.length, label: 'Prizes' },
+  { value: CERTIFICATES.length, label: 'Certificates' },
+  { value: PROJECTS.length, label: 'Full case studies' },
+  { value: 1, label: 'Sensor network' },
+]
+
+export const ABOUT = [
+  {
+    title: 'Who',
+    body: "I'm a full-stack developer and UI/UX designer from Almaty, Kazakhstan. I think in systems — architecture first, then implementation — and I treat engineering and design as one problem, not two.",
+  },
+  {
+    title: 'Now',
+    body: 'Applying to undergraduate programs in AI Engineering & Cybersecurity in South Korea, while studying neural network foundations and AI system architecture.',
+  },
+  {
+    title: 'Values',
+    body: 'Quality over quantity. Consistency over decoration. Minimalism over complexity. Long-term thinking over shortcuts.',
+  },
+  {
+    title: 'Education',
+    body: 'KGU Lyceum No. 166 — final year, graduating 2027. Preparing for IELTS; SAT scheduled for November 2026.',
+  },
+  {
+    title: 'Next',
+    body: 'Master software architecture, build products used by thousands of people, and start companies around technology.',
+  },
+]
 
 export type SecurityGroup = { title: string; intro: string; points: string[] }
 
@@ -170,9 +197,9 @@ export const SECURITY: SecurityGroup[] = [
   },
   {
     title: 'On this site',
-    intro: 'A static site still has an attack surface — mostly the browser.',
+    intro: 'A portfolio still has an attack surface — mostly the browser.',
     points: [
-      'Strict Content-Security-Policy: scripts, fonts and media only from this origin',
+      'Content-Security-Policy with a fresh nonce on every request: only scripts this server issued can run',
       'Clickjacking protection (frame-ancestors none, X-Frame-Options DENY), HSTS, nosniff, strict Referrer-Policy and Permissions-Policy',
       'Zero third-party requests — fonts are self-hosted, no trackers or analytics',
       'A security.txt contact at /.well-known/security.txt and 0 known vulnerabilities in dependencies (npm audit)',
@@ -184,3 +211,14 @@ export const SECURITY: SecurityGroup[] = [
     points: [],
   },
 ]
+
+export const HMAC_SNIPPET = `// Verify a sensor packet before trusting a single byte of it
+const given = Buffer.from(req.headers['x-signature'] ?? '', 'hex')
+const expected = createHmac('sha256', deviceSecret(id))
+  .update(rawBody)
+  .digest()
+
+if (given.length !== expected.length) return reply.code(401).send()
+if (!timingSafeEqual(given, expected)) return reply.code(401).send()
+
+await ingest(id, JSON.parse(rawBody))`

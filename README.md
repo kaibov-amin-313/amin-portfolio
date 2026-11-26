@@ -1,37 +1,40 @@
-# Amin Kaibov — Design & Engineering
+# Amin Kaibov — Portfolio
 
-Single-viewport portfolio landing page. React + TypeScript + Tailwind CSS v4 + Vite, lucide-react icons.
-Live: https://amin-kaibov.vercel.app
+Next.js (App Router) + TypeScript + Tailwind CSS v4 + GSAP (ScrollTrigger, SplitText) + Lenis.
 
 ## Run
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # production build -> dist/
+npm run dev      # http://localhost:3000
+npm run build && npm start
+npm run lint     # oxlint + tsc
 ```
 
-Deploy: push to `main` — Vercel builds automatically (preset: Vite, output: `dist`).
+Deploys to Vercel as a Next.js app (`vercel.json` pins the framework preset).
+
+## Hero clip → scroll frames
+
+The hero is a frame sequence drawn on a canvas and scrubbed by scroll. To use a new clip:
+
+```bash
+npm run frames -- media/your-clip.mp4            # defaults: 1440px wide, source fps, WebP q72
+npm run frames -- media/your-clip.mp4 --fps=30 --width=1600
+```
+
+This rewrites `public/frames/` and `src/lib/frames.ts`. Aim for 80–150 frames; the captions in
+`HERO_CHAPTERS` (`src/content.ts`) appear at roughly the first, middle and last third of the clip.
 
 ## Structure
 
-- `src/content.ts` — all copy: skills, projects (AUA, BASHIR&CO), awards, education, security notes, links. Edit here.
-- `src/App.tsx` — the locked full-screen landing (video background, nav, meta grid, headline, award chips, footer).
-- `src/components/Overlay.tsx` — shared fullscreen dialog: focus trap, focus restore, Escape to close.
-- `src/components/Panels.tsx` — ABOUT / PROJECTS / AWARDS / SECURITY / TALK panels. Each is linkable by hash
-  (`/#projects`, `/#security` …) and closes with the browser Back button.
-- `src/components/Logo.tsx` — geometric "AK" monogram.
+- `src/content.ts` — all copy: projects, awards, security notes, about, links.
+- `src/app/page.tsx` — home: preloader, hero, manifesto, work, awards, security, about, contact.
+- `src/app/projects/[slug]/page.tsx` — case-study pages.
+- `src/components/Hero.tsx` — canvas frame scrubbing + scroll choreography.
+- `src/lib/useReveals.ts` — `data-reveal="lines | fade | rule | scrub"` scroll reveals.
+- `src/proxy.ts` — per-request CSP nonce; other security headers live in `next.config.ts`.
 
-## Security
+## Notes
 
-- `vercel.json` — security headers: strict CSP (self-only scripts/fonts/media), `frame-ancestors 'none'`,
-  X-Frame-Options, HSTS, nosniff, Referrer-Policy, Permissions-Policy, COOP/CORP.
-- No third-party requests: Inter comes from `@fontsource-variable/inter`, basis33 is compiled from
-  github.com/Manchson/basis33 (MIT, license in `src/assets/fonts/`).
-- `public/.well-known/security.txt` — contact for vulnerability reports (renew `Expires` yearly).
-
-## Media
-
-- `src/assets/hero-bg.webm` / `hero-bg.mp4` — background video (~250–300 KB), `hero-poster.jpg` shown while loading,
-  when autoplay is blocked, or when the visitor prefers reduced motion. A Pause/Play control is in the footer and mobile menu.
-- `public/og.jpg` — 1200×630 link-preview image; `public/apple-touch-icon.png` — iOS home-screen icon.
+- Fonts are self-hosted (Inter via `next/font`, basis33 from `src/fonts`, MIT) — no third-party requests.
+- `prefers-reduced-motion` disables smooth scroll, the pinned hero and all reveals.
