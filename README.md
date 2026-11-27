@@ -28,15 +28,18 @@ clip. Every 4th frame gates the preloader; the rest stream in afterwards.
 
 ## Award certificates
 
-Put scans or photos in `media/certificates/`, named after the award's `id` in `src/content.ts`
-(`techvision-2026.pdf`, `techvision-2026.jpg`, `techvision-2026-2.jpg`, …), then run:
+Put files in `media/certificates/`, named after the award's `id` in `src/content.ts`, then run
+`npm run certificates` (the first time, `npm run scan:setup` installs the scanner's Python env):
 
-```bash
-npm run certificates
-```
+- `techvision-2026.jpg` / `.heic` / `.png` — a photo of a certificate. It is straightened, cropped to the
+  sheet (snapped to A4 when close), shadows and colour cast are removed and the paper goes white, then it is
+  saved as a web preview and an A4 PDF.
+- `techvision-2026-2.jpg` — another page for the same award.
+- `techvision-2026.pdf` — an existing PDF, copied as is.
+- `techvision-2026-photo.jpg` — shown as a plain photo (e.g. the ceremony), no scanning.
 
-Photos become WebP (max 1800px) in `public/certificates/`, PDFs are copied as is, and each award with
-files gets a "View" / "View PDF" button that opens them in an in-page viewer. Export iPhone HEIC as JPG first.
+If the sheet's outline is detected wrongly, give its four corners (photo pixels) in
+`media/certificates/corners.json`: `{ "techvision-2026.jpg": [[x, y], [x, y], [x, y], [x, y]] }`.
 
 ## Structure
 

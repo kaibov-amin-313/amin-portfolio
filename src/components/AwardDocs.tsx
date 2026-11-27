@@ -5,12 +5,13 @@ import type { AwardDoc } from '@/lib/awardDocs'
 import { gsap, prefersReducedMotion } from '@/lib/gsap'
 import { getLenis } from '@/lib/lenis'
 
-export default function AwardDocs({ title, docs }: { title: string; docs: AwardDoc[] }) {
+export default function AwardDocs({ title, docs, label }: { title: string; docs: AwardDoc[]; label?: string }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const panel = useRef<HTMLDivElement>(null)
   const [index, setIndex] = useState(0)
   const doc = docs[index]
-  const hasPdf = docs.some((d) => d.kind === 'pdf')
+  const hasPdf = docs.some((d) => d.kind !== 'image')
+  const link = doc.kind === 'scan' ? { href: doc.pdf, label: 'Open PDF ↗' } : { href: doc.src, label: doc.kind === 'pdf' ? 'Open PDF ↗' : 'Open original ↗' }
 
   const open = () => {
     setIndex(0)
@@ -46,7 +47,7 @@ export default function AwardDocs({ title, docs }: { title: string; docs: AwardD
         data-cursor="View"
         className="relative z-10 inline-flex items-center gap-2 rounded-full border border-current/30 px-3.5 py-1.5 text-[0.68rem] font-medium tracking-[0.14em] uppercase transition-colors hover:border-signal hover:bg-signal hover:text-ink"
       >
-        {hasPdf ? 'View PDF' : 'View'}
+        {label ?? (hasPdf ? 'View PDF' : 'View')}
         <span aria-hidden>↗</span>
       </button>
 
@@ -68,10 +69,10 @@ export default function AwardDocs({ title, docs }: { title: string; docs: AwardD
               )}
             </p>
             <div className="flex shrink-0 items-center gap-5 text-xs font-medium tracking-[0.14em] uppercase">
-              <a href={doc.src} target="_blank" rel="noopener noreferrer" className="hover:text-signal">
-                Open original ↗
+              <a href={link.href} target="_blank" rel="noopener noreferrer" className="hover:text-signal">
+                {link.label}
               </a>
-              <button type="button" onClick={() => dialog.current?.close()} className="hover:text-signal" autoFocus>
+              <button type="button" onClick={() => dialog.current?.close()} className="uppercase hover:text-signal" autoFocus>
                 Close
               </button>
             </div>
@@ -81,7 +82,16 @@ export default function AwardDocs({ title, docs }: { title: string; docs: AwardD
             {doc.kind === 'pdf' ? (
               <iframe key={doc.src} src={`${doc.src}#view=FitH`} title={`${title} — PDF`} className="size-full bg-paper" />
             ) : (
-              <img key={doc.src} src={doc.src} width={doc.width} height={doc.height} alt={`${title} — certificate`} className="size-full object-contain p-4" />
+              <div className="flex size-full items-center justify-center p-4 md:p-8">
+                <img
+                  key={doc.src}
+                  src={doc.src}
+                  width={doc.width}
+                  height={doc.height}
+                  alt={`${title} — certificate`}
+                  className={`h-auto max-h-full w-auto max-w-full ${doc.kind === 'scan' ? 'bg-white shadow-[0_30px_80px_-20px_rgb(0_0_0/0.8)]' : ''}`}
+                />
+              </div>
             )}
           </div>
 

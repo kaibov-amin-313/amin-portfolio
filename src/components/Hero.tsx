@@ -90,7 +90,7 @@ export default function Hero() {
       const playhead = { f: 0 }
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: section.current, start: 'top top', end: 'bottom bottom', scrub: 0.8 },
+        scrollTrigger: { trigger: section.current, start: 'top top', end: 'bottom bottom', scrub: true },
       })
 
       tl.to(playhead, { f: FRAMES.count - 1, duration: 8.6, onUpdate: () => draw(playhead.f) }, 0)
@@ -147,8 +147,7 @@ export default function Hero() {
               />
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/60 via-transparent to-ink/85" />
-          <div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_30%,transparent_40%,rgb(5_5_5/0.75)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_30%,transparent_40%,rgb(5_5_5/0.75)_100%),linear-gradient(to_bottom,rgb(5_5_5/0.6),transparent_50%,rgb(5_5_5/0.85))]" />
           <div data-shade className="pointer-events-none invisible absolute inset-0 bg-ink opacity-0" />
         </div>
 
@@ -181,14 +180,14 @@ export default function Hero() {
         {/* Chapters: one caption per pose of the clip */}
         <div className="gutter pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2">
           {HERO_CHAPTERS.map((c, i) => (
-            <div key={c.index} data-chapter className="invisible absolute max-w-sm">
+            <div key={c.index} data-chapter className="invisible absolute">
               <div className="flex items-center gap-4">
                 <span data-split className="font-pixel block text-lg text-signal">
                   {c.index}
                 </span>
                 <span data-chapter-rule={i} className="block h-px w-16 origin-left bg-paper/60" />
               </div>
-              <p data-split className="display mt-3 text-5xl md:text-7xl">
+              <p data-split className="display mt-3 text-[12vw] whitespace-nowrap md:text-7xl">
                 {c.title}
               </p>
               <p data-split className="mt-4 max-w-[30ch] text-sm leading-relaxed text-paper/75">

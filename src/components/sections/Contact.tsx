@@ -7,7 +7,7 @@ import { useAlmatyTime } from '../useAlmatyTime'
 export default function Contact() {
   const time = useAlmatyTime()
   return (
-    <footer id="contact" className="gutter relative flex min-h-svh flex-col justify-between overflow-hidden bg-paper pt-28 pb-8 text-ink">
+    <footer id="contact" data-nav-light className="gutter relative flex min-h-svh flex-col justify-between overflow-hidden bg-paper pt-28 pb-8 text-ink">
       <div className="grid gap-8 md:grid-cols-12">
         <p className="label !text-ink/50 md:col-span-3">(05) Contact</p>
         <p className="max-w-[36ch] text-lg leading-snug md:col-span-5">

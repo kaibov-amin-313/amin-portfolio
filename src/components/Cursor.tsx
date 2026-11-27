@@ -51,7 +51,7 @@ export default function Cursor() {
     <div
       ref={ref}
       aria-hidden
-      className="cursor-only pointer-events-none fixed top-0 left-0 z-[70] flex size-24 items-center justify-center rounded-full bg-paper opacity-0 mix-blend-difference"
+      className="cursor-only pointer-events-none fixed top-0 left-0 z-[70] flex size-24 items-center justify-center rounded-full bg-signal opacity-0"
     >
       <span ref={labelRef} className="font-pixel text-sm text-ink uppercase" />
     </div>
