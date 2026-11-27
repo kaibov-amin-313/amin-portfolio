@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { HERO_CHAPTERS } from '@/content'
 import { FRAMES } from '@/lib/frames'
-import { loadFrames } from '@/lib/frameStore'
+import { getFrame, loadFrames } from '@/lib/frameStore'
 import { gsap, prefersReducedMotion, SplitText, useGSAP } from '@/lib/gsap'
 import { introDone } from '@/lib/intro'
 
@@ -22,26 +22,29 @@ export default function Hero() {
       const cvs = canvas.current!
       const ctx = cvs.getContext('2d')!
       const reduced = prefersReducedMotion()
-      let images: HTMLImageElement[] = []
-      let current = -1
+      let current = 0
+      let drawn: HTMLImageElement | null = null
 
       const draw = (index: number, force = false) => {
-        const i = Math.max(0, Math.min(FRAMES.count - 1, Math.round(index)))
-        if ((!force && i === current) || !images[i]?.naturalWidth) return
-        current = i
-        const img = images[i]
+        current = Math.max(0, Math.min(FRAMES.count - 1, Math.round(index)))
+        const img = getFrame(current)
+        if (!img || (!force && img === drawn)) return
+        drawn = img
         const s = Math.max(cvs.width / img.naturalWidth, cvs.height / img.naturalHeight)
         const w = img.naturalWidth * s
         const h = img.naturalHeight * s
         ctx.drawImage(img, (cvs.width - w) * FOCUS.x, (cvs.height - h) * FOCUS.y, w, h)
-        if (frameLabel.current) frameLabel.current.textContent = `${pad(i + 1)}/${pad(FRAMES.count)}`
+        if (frameLabel.current) frameLabel.current.textContent = `${pad(current + 1)}/${pad(FRAMES.count)}`
       }
 
       const resize = () => {
-        const dpr = Math.min(window.devicePixelRatio, 2)
+        // Past the frame's own resolution extra canvas pixels add cost, not detail.
+        const img = getFrame(0)
+        const cover = img ? Math.max(cvs.clientWidth / img.naturalWidth, cvs.clientHeight / img.naturalHeight) : 1
+        const dpr = Math.max(1, Math.min(window.devicePixelRatio, 1 / cover))
         cvs.width = Math.round(cvs.clientWidth * dpr)
         cvs.height = Math.round(cvs.clientHeight * dpr)
-        draw(current < 0 ? 0 : current, true)
+        draw(current, true)
       }
       const onResize = contextSafe!(resize)
       window.addEventListener('resize', onResize)
@@ -66,12 +69,7 @@ export default function Hero() {
         gsap.set('[data-parallax]', { scale: 1.15 })
       }
 
-      loadFrames().then(
-        contextSafe!((imgs: HTMLImageElement[]) => {
-          images = imgs
-          resize()
-        }),
-      )
+      loadFrames().then(contextSafe!(resize))
 
       if (reduced) return () => window.removeEventListener('resize', onResize)
 
@@ -92,7 +90,7 @@ export default function Hero() {
       const playhead = { f: 0 }
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: section.current, start: 'top top', end: 'bottom bottom', scrub: 0.8 },
+        scrollTrigger: { trigger: section.current, start: 'top top', end: 'bottom bottom', scrub: true },
       })
 
       tl.to(playhead, { f: FRAMES.count - 1, duration: 8.6, onUpdate: () => draw(playhead.f) }, 0)
@@ -112,12 +110,14 @@ export default function Hero() {
 
       tl.to('[data-shade]', { autoAlpha: 0.62, duration: 1.6 }, 7.4)
         .to(headSplit.lines, { yPercent: 0, duration: 1.1, stagger: 0.18, ease: 'expo.out' }, 7.6)
-        .to('[data-stage-clip]', { clipPath: 'inset(4% 3% 4% 3% round 14px)', duration: 1.2, ease: 'power2.inOut' }, 8.8)
+        // Scale + radius stays on the compositor; animating clip-path repainted the whole canvas every frame.
+        .to('[data-stage-clip]', { scale: 0.93, borderRadius: 14, duration: 1.2, ease: 'power2.inOut' }, 8.8)
 
       // A touch of depth: the face drifts against the pointer.
       const px = gsap.quickTo('[data-parallax]', 'x', { duration: 1.2, ease: 'power3.out' })
       const py = gsap.quickTo('[data-parallax]', 'y', { duration: 1.2, ease: 'power3.out' })
       const onPointer = contextSafe!((e: PointerEvent) => {
+        if (window.scrollY > section.current!.offsetHeight) return
         px((e.clientX / window.innerWidth - 0.5) * -24)
         py((e.clientY / window.innerHeight - 0.5) * -16)
       })
@@ -135,8 +135,8 @@ export default function Hero() {
   return (
     <section id="top" ref={section} aria-label="Introduction" className="relative h-svh motion-safe:h-[420svh]">
       <div className="sticky top-0 h-svh overflow-hidden">
-        <div data-stage-clip className="absolute inset-0 overflow-hidden" style={{ clipPath: 'inset(0% 0% 0% 0% round 0px)' }}>
-          <div data-stage className="absolute inset-0 will-change-transform">
+        <div data-stage-clip className="absolute inset-0 overflow-hidden will-change-transform">
+          <div data-stage className="absolute inset-0">
             <div data-parallax className="absolute -inset-6">
               <canvas
                 ref={canvas}
@@ -147,8 +147,7 @@ export default function Hero() {
               />
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/60 via-transparent to-ink/85" />
-          <div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_30%,transparent_40%,rgb(5_5_5/0.75)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 [background:radial-gradient(120%_80%_at_50%_30%,transparent_40%,rgb(5_5_5/0.75)_100%),linear-gradient(to_bottom,rgb(5_5_5/0.6),transparent_50%,rgb(5_5_5/0.85))]" />
           <div data-shade className="pointer-events-none invisible absolute inset-0 bg-ink opacity-0" />
         </div>
 
@@ -181,14 +180,14 @@ export default function Hero() {
         {/* Chapters: one caption per pose of the clip */}
         <div className="gutter pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2">
           {HERO_CHAPTERS.map((c, i) => (
-            <div key={c.index} data-chapter className="invisible absolute max-w-sm">
+            <div key={c.index} data-chapter className="invisible absolute">
               <div className="flex items-center gap-4">
                 <span data-split className="font-pixel block text-lg text-signal">
                   {c.index}
                 </span>
                 <span data-chapter-rule={i} className="block h-px w-16 origin-left bg-paper/60" />
               </div>
-              <p data-split className="display mt-3 text-5xl md:text-7xl">
+              <p data-split className="display mt-3 text-[12vw] whitespace-nowrap md:text-7xl">
                 {c.title}
               </p>
               <p data-split className="mt-4 max-w-[30ch] text-sm leading-relaxed text-paper/75">
@@ -211,12 +210,12 @@ export default function Hero() {
         </h2>
 
         {/* Name */}
-        <h1 className="gutter absolute inset-x-0 bottom-16 flex items-end justify-between gap-4 md:bottom-14">
+        <h1 className="gutter absolute inset-x-0 bottom-16 flex flex-col gap-1 whitespace-nowrap md:bottom-14 md:flex-row md:items-end md:justify-between md:gap-4">
           <span data-name-left className="block">
-            <span data-name className="display block text-[22vw] md:text-[16vw]">Amin</span>
+            <span data-name className="display block text-[28vw] md:text-[16vw]">Amin</span>
           </span>
-          <span data-name-right className="block">
-            <span data-name className="font-pixel block text-[19vw] leading-[0.8] md:text-[14vw]">KAIBOV</span>
+          <span data-name-right className="block self-end md:self-auto">
+            <span data-name className="font-pixel block text-[22vw] leading-[0.8] md:text-[14vw]">KAIBOV</span>
           </span>
         </h1>
 

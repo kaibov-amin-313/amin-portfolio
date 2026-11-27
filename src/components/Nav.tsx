@@ -13,6 +13,7 @@ export default function Nav() {
   const pathname = usePathname()
   const time = useAlmatyTime()
   const [open, setOpen] = useState(false)
+  const [onLight, setOnLight] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const go = (e: React.MouseEvent, href: string) => {
@@ -22,6 +23,22 @@ export default function Nav() {
     history.replaceState(null, '', href)
     scrollToTarget(href)
   }
+
+  // The header flips to dark text while a light section ([data-nav-light]) sits under it.
+  // A colour switch instead of mix-blend-mode: Safari re-blends a fixed layer against the whole page every frame.
+  useEffect(() => {
+    const targets = document.querySelectorAll('[data-nav-light]')
+    const under = new Set<Element>()
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => (e.isIntersecting ? under.add(e.target) : under.delete(e.target)))
+        setOnLight(under.size > 0)
+      },
+      { rootMargin: '-3% 0px -96% 0px' },
+    )
+    targets.forEach((t) => io.observe(t))
+    return () => io.disconnect()
+  }, [pathname])
 
   useEffect(() => {
     const lenis = getLenis()
@@ -49,7 +66,7 @@ export default function Nav() {
 
   return (
     <>
-      <header className="gutter fixed inset-x-0 top-0 z-50 flex items-center justify-between py-5 text-paper mix-blend-difference">
+      <header className={`gutter fixed inset-x-0 top-0 z-50 flex items-center justify-between py-5 transition-colors duration-500 ${open || onLight ? 'text-ink' : 'text-paper'}`}>
         <Link href="/" aria-label="Amin Kaibov — home" className="flex items-center gap-3" onClick={(e) => pathname === '/' && go(e, '#top')}>
           <Logo size={22} />
           <span className="hidden text-xs font-medium tracking-[0.18em] sm:inline">AMIN KAIBOV</span>
@@ -73,8 +90,8 @@ export default function Nav() {
         <div className="flex items-center gap-6">
           <p className="font-pixel hidden items-center gap-2 text-sm lg:flex">
             <span className="relative flex size-1.5">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-paper opacity-60" />
-              <span className="relative inline-flex size-1.5 rounded-full bg-paper" />
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-current" />
             </span>
             ALMATY {time}
           </p>

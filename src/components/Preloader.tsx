@@ -1,11 +1,10 @@
 'use client'
 
 import { useRef } from 'react'
-import { FRAMES } from '@/lib/frames'
-import { loadFrames, onFrameProgress } from '@/lib/frameStore'
+import { framesReady, KEY_FRAME_COUNT, loadFrames, onFrameProgress } from '@/lib/frameStore'
 import { gsap, prefersReducedMotion, useGSAP } from '@/lib/gsap'
 import { startIntro } from '@/lib/intro'
-import { getLenis } from '@/lib/lenis'
+import { getLenis, scrollToTarget } from '@/lib/lenis'
 
 const pad = (n: number, len = 3) => String(Math.round(n)).padStart(len, '0')
 
@@ -18,6 +17,20 @@ export default function Preloader() {
   useGSAP(
     () => {
       const html = document.documentElement
+      // Links like /#work from a case-study page land on their section once loading is done.
+      const jumpToHash = () => {
+        const hash = window.location.hash
+        if (hash.length > 1 && document.querySelector(hash)) requestAnimationFrame(() => scrollToTarget(hash, true))
+      }
+
+      // Back on the home page within the same visit: the frames are cached, so skip the curtain.
+      if (framesReady()) {
+        gsap.set(root.current, { display: 'none' })
+        startIntro()
+        jumpToHash()
+        return
+      }
+
       history.scrollRestoration = 'manual'
       window.scrollTo(0, 0)
       html.classList.add('is-loading')
@@ -29,11 +42,11 @@ export default function Preloader() {
         if (bar.current) bar.current.style.transform = `scaleX(${shown.v / 100})`
       }
       const unsubscribe = onFrameProgress((p) => {
-        if (frames.current) frames.current.textContent = `${pad(p * FRAMES.count)}/${pad(FRAMES.count)}`
+        if (frames.current) frames.current.textContent = `${pad(p * KEY_FRAME_COUNT)}/${pad(KEY_FRAME_COUNT)}`
         gsap.to(shown, { v: p * 100, duration: 0.6, ease: 'power2.out', overwrite: true, onUpdate: render })
       })
 
-      const minTime = new Promise((r) => setTimeout(r, prefersReducedMotion() ? 0 : 1400))
+      const minTime = new Promise((r) => setTimeout(r, prefersReducedMotion() ? 0 : 900))
       let cancelled = false
 
       Promise.all([loadFrames(), minTime]).then(() => {
@@ -46,6 +59,7 @@ export default function Preloader() {
           html.classList.remove('is-loading')
           getLenis()?.start()
           startIntro()
+          jumpToHash()
         }
         if (prefersReducedMotion()) {
           gsap.set(root.current, { display: 'none' })
@@ -93,7 +107,7 @@ export default function Preloader() {
           </span>
           <span className="line-mask mb-[1.5vw] block text-right">
             <span data-out className="font-pixel block text-sm text-dim">
-              FRAMES <span ref={frames}>000/{pad(FRAMES.count)}</span>
+              KEYFRAMES <span ref={frames}>000/{pad(KEY_FRAME_COUNT)}</span>
             </span>
           </span>
         </div>

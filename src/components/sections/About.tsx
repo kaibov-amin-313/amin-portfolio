@@ -1,5 +1,6 @@
 import { ABOUT, STACK } from '@/content'
 import SectionHead from '../SectionHead'
+import Path from './Path'
 
 export default function About() {
   return (
@@ -21,6 +22,8 @@ export default function About() {
           ))}
         </dl>
       </div>
+
+      <Path />
 
       <div className="mt-[12vh] overflow-hidden border-y border-line py-6" aria-label="Stack">
         <div className="marquee flex w-max gap-12 whitespace-nowrap">

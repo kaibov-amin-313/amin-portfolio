@@ -6,6 +6,8 @@ import { SplitText } from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP)
+// Mobile address bars resize the viewport on scroll; re-measuring every trigger then causes a hitch.
+ScrollTrigger.config({ ignoreMobileResize: true })
 export { gsap, ScrollTrigger, SplitText, useGSAP }
 
 export const EASE_OUT = 'expo.out'

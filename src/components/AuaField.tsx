@@ -6,6 +6,14 @@ import { prefersReducedMotion } from '@/lib/gsap'
 type Sensor = { x: number; y: number; vx: number; vy: number; v: number; phase: number }
 
 const CELL = 14
+const LEVELS = 48
+const FRAME_MS = 1000 / 30
+
+// One colour per quantised level, so a frame costs LEVELS fills instead of one per dot.
+const PALETTE = Array.from({ length: LEVELS }, (_, k) => {
+  const v = k / (LEVELS - 1)
+  return v > 0.62 ? `rgba(255,77,46,${(0.35 + v * 0.65).toFixed(3)})` : `rgba(236,235,230,${(0.12 + v * 0.55).toFixed(3)})`
+})
 
 /**
  * A live dot-matrix of an air-quality field: drifting "stations" are blended with
@@ -18,81 +26,104 @@ export default function AuaField({ className = '', sensors = 9 }: { className?: 
     const cvs = ref.current!
     const ctx = cvs.getContext('2d')!
     const reduced = prefersReducedMotion()
+    const font = `13px ${getComputedStyle(cvs).getPropertyValue('--font-basis33') || 'monospace'}`
     let raf = 0
+    let last = 0
     let visible = false
     let w = 0
     let h = 0
-    let dpr = 1
+    let cols = 0
+    let rows = 0
+    let buckets: number[][] = []
 
     const nodes: Sensor[] = Array.from({ length: sensors }, (_, i) => ({
       x: Math.random(),
       y: Math.random(),
-      vx: (Math.random() - 0.5) * 0.0006,
-      vy: (Math.random() - 0.5) * 0.0006,
+      vx: (Math.random() - 0.5) * 0.0012,
+      vy: (Math.random() - 0.5) * 0.0012,
       v: i === 0 ? 1 : 0.15 + Math.random() * 0.7,
       phase: Math.random() * Math.PI * 2,
     }))
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio, 2)
+      const dpr = Math.min(window.devicePixelRatio, 1.5)
       w = cvs.clientWidth
       h = cvs.clientHeight
       cvs.width = Math.round(w * dpr)
       cvs.height = Math.round(h * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      cols = Math.ceil(w / CELL)
+      rows = Math.ceil(h / CELL)
     }
 
-    const frame = (t: number) => {
-      ctx.clearRect(0, 0, w, h)
+    const render = (t: number) => {
       for (const n of nodes) {
         n.x += n.vx
         n.y += n.vy
         if (n.x < 0 || n.x > 1) n.vx *= -1
         if (n.y < 0 || n.y > 1) n.vy *= -1
       }
-      const cols = Math.ceil(w / CELL)
-      const rows = Math.ceil(h / CELL)
+      const sx = nodes.map((n) => n.x * w)
+      const sy = nodes.map((n) => n.y * h)
+      const sv = nodes.map((n) => n.v * (0.85 + 0.15 * Math.sin(t / 900 + n.phase)))
+
+      buckets = Array.from({ length: LEVELS }, () => [])
       for (let r = 0; r < rows; r++) {
+        const py = (r + 0.5) * CELL
         for (let c = 0; c < cols; c++) {
           const px = (c + 0.5) * CELL
-          const py = (r + 0.5) * CELL
           let num = 0
           let den = 0
-          for (const n of nodes) {
-            const dx = px - n.x * w
-            const dy = py - n.y * h
+          for (let k = 0; k < sx.length; k++) {
+            const dx = px - sx[k]
+            const dy = py - sy[k]
             const wgt = 1 / (dx * dx + dy * dy + 900)
-            num += wgt * n.v * (0.85 + 0.15 * Math.sin(t / 900 + n.phase))
+            num += wgt * sv[k]
             den += wgt
           }
-          const v = num / den
-          const size = 0.6 + v * (CELL * 0.42)
-          ctx.fillStyle = v > 0.62 ? `rgba(255,77,46,${0.35 + v * 0.65})` : `rgba(236,235,230,${0.12 + v * 0.55})`
-          ctx.fillRect(px - size / 2, py - size / 2, size, size)
+          buckets[Math.min(LEVELS - 1, Math.round((num / den) * (LEVELS - 1)))].push(px, py)
         }
       }
+
+      ctx.clearRect(0, 0, w, h)
+      for (let k = 0; k < LEVELS; k++) {
+        const pts = buckets[k]
+        if (!pts.length) continue
+        const size = 0.6 + (k / (LEVELS - 1)) * (CELL * 0.42)
+        const half = size / 2
+        ctx.fillStyle = PALETTE[k]
+        ctx.beginPath()
+        for (let p = 0; p < pts.length; p += 2) ctx.rect(pts[p] - half, pts[p + 1] - half, size, size)
+        ctx.fill()
+      }
+
       ctx.fillStyle = '#ecebe6'
-      ctx.font = `13px ${getComputedStyle(cvs).getPropertyValue('--font-basis33') || 'monospace'}`
+      ctx.font = font
       nodes.forEach((n, i) => {
-        const x = n.x * w
-        const y = n.y * h
-        ctx.fillRect(x - 3, y - 3, 6, 6)
-        ctx.fillText(`ST-${String(i + 1).padStart(2, '0')} ${Math.round(n.v * 180)}`, x + 8, y - 6)
+        ctx.fillRect(sx[i] - 3, sy[i] - 3, 6, 6)
+        ctx.fillText(`ST-${String(i + 1).padStart(2, '0')} ${Math.round(n.v * 180)}`, sx[i] + 8, sy[i] - 6)
       })
-      if (visible && !reduced) raf = requestAnimationFrame(frame)
+    }
+
+    const loop = (t: number) => {
+      if (t - last >= FRAME_MS) {
+        last = t
+        render(t)
+      }
+      if (visible && !reduced) raf = requestAnimationFrame(loop)
     }
 
     resize()
-    frame(0)
+    render(0)
     const ro = new ResizeObserver(() => {
       resize()
-      frame(performance.now())
+      render(performance.now())
     })
     ro.observe(cvs)
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
       cancelAnimationFrame(raf)
-      if (visible && !reduced) raf = requestAnimationFrame(frame)
+      if (visible && !reduced) raf = requestAnimationFrame(loop)
     })
     io.observe(cvs)
 

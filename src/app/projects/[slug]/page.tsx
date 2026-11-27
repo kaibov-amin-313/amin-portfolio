@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import ExpertReview from '@/components/ExpertReview'
 import ProjectVisual from '@/components/ProjectVisual'
 import RevealScope from '@/components/RevealScope'
 import Contact from '@/components/sections/Contact'
@@ -47,7 +48,7 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[slug
                 ['Year', p.year],
                 ['Role', p.role],
                 ['Field', p.meta.join(' · ')],
-                ['Recognition', p.award ?? '—'],
+                p.team ? ['Team', p.team] : ['Recognition', p.award ?? '—'],
               ].map(([k, v]) => (
                 <div key={k} data-reveal="fade">
                   <dt className="label">{k}</dt>
@@ -87,6 +88,8 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[slug
                 ))}
               </ol>
             </div>
+
+            {p.review && <ExpertReview review={p.review} />}
 
             <div className="mt-[10vh] grid gap-10 md:grid-cols-12">
               <h2 className="label md:col-span-3">(Stack)</h2>

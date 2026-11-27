@@ -3,6 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const isDev = process.env.NODE_ENV === 'development'
+  // Only ask for an upgrade on https: Safari applies it to http://localhost too and then can't load
+  // any CSS or JS from a local production build. Vercel terminates TLS and forwards the scheme.
+  const isHttps = (request.headers.get('x-forwarded-proto') ?? request.nextUrl.protocol.replace(':', '')) === 'https'
 
   // Styles keep 'unsafe-inline': React and GSAP write inline style attributes, and a nonce
   // in style-src would make browsers ignore 'unsafe-inline'. Scripts stay nonce-only.
@@ -18,7 +21,7 @@ export function proxy(request: NextRequest) {
     "base-uri 'self'",
     "form-action 'none'",
     "frame-ancestors 'none'",
-    ...(isDev ? [] : ['upgrade-insecure-requests']),
+    ...(isHttps ? ['upgrade-insecure-requests'] : []),
   ].join('; ')
 
   const requestHeaders = new Headers(request.headers)
@@ -33,7 +36,7 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      source: '/((?!_next/static|_next/image|frames/|favicon|apple-touch-icon|og.jpg|hero-poster.jpg|.well-known).*)',
+      source: '/((?!_next/static|_next/image|frames/|certificates/|favicon|apple-touch-icon|og.jpg|hero-poster.jpg|noise.png|.well-known).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },

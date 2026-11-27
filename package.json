@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "oxlint && tsc --noEmit",
-    "frames": "node scripts/extract-frames.mjs"
+    "frames": "node scripts/extract-frames.mjs",
+    "certificates": "node scripts/certificates.mjs",
+    "scan:setup": "python3 -m venv .venv-scan && .venv-scan/bin/pip install -q -r scripts/requirements-scan.txt"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
