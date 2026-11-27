@@ -20,14 +20,17 @@ export function useReveals(scope: RefObject<HTMLElement | null>) {
           type: 'lines',
           mask: 'lines',
           autoSplit: true,
-          onSplit: (self) =>
-            gsap.from(self.lines, {
+          onSplit: (self) => {
+            // The CSS keeps it hidden until the lines are masked and parked below.
+            gsap.set(el, { visibility: 'visible' })
+            return gsap.from(self.lines, {
               yPercent: 110,
               duration: 1.3,
               ease: 'expo.out',
               stagger: 0.08,
               scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-            }),
+            })
+          },
         })
       })
 
@@ -40,13 +43,11 @@ export function useReveals(scope: RefObject<HTMLElement | null>) {
       gsap.set('[data-reveal="fade"]', { autoAlpha: 0 })
 
       gsap.utils.toArray<HTMLElement>('[data-reveal="rule"]').forEach((el) =>
-        gsap.from(el, {
-          scaleX: 0,
-          transformOrigin: 'left',
-          duration: 1.6,
-          ease: 'expo.out',
-          scrollTrigger: { trigger: el, start: 'top 95%', once: true },
-        }),
+        gsap.fromTo(
+          el,
+          { scaleX: 0, transformOrigin: 'left' },
+          { scaleX: 1, duration: 1.6, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 95%', once: true } },
+        ),
       )
 
       gsap.utils.toArray<HTMLElement>('[data-reveal="scrub"]').forEach((el) => {

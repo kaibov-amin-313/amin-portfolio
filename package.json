@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "oxlint && tsc --noEmit",
-    "frames": "node scripts/extract-frames.mjs"
+    "frames": "node scripts/extract-frames.mjs",
+    "certificates": "node scripts/certificates.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

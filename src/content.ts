@@ -43,6 +43,7 @@ export type Project = {
   year: string
   role: string
   award?: string
+  team?: string
 }
 
 export const PROJECTS: Project[] = [
@@ -72,8 +73,31 @@ export const PROJECTS: Project[] = [
     award: 'TechVision Hackathon 2026 — 1st place',
   },
   {
-    slug: 'bashir-co',
+    slug: 'almaty-suborbital',
     index: '02',
+    name: 'ALMATY HUB',
+    pixelWord: 'ORBIT',
+    tagline: 'Can Almaty become a hub for suborbital passenger flights?',
+    description:
+      'A research project with its own physics model: Starship-class point-to-point flights from Almaty to 15 world cities, compared with a Boeing 777 on time, g-load, energy, emissions and cost — ending in an honest verdict on whether Almaty can be the hub.',
+    points: [
+      'Own trajectory model in Python — numerical integration in polar coordinates, US Standard Atmosphere 1976, variable mass, Earth-rotation correction',
+      '15 cities × 3 cabins (100 / 400 / 1,000 seats): burnout speed and altitude solved per city to land on target without exceeding the g-limit',
+      'New York in 35 minutes instead of 12.5 hours — 21.7× faster; every city within 16–43 minutes, ascent capped at 3 g',
+      "Validated twice: against Kepler's analytical solution and SpaceX's announced New York–Shanghai flight — 38.8 vs 39 min, under 1% off",
+      'Found and fixed a range bug that left New York 1,256 km short; all 15 routes recomputed and every conclusion re-checked',
+      'The costs, stated up front: ~47× the energy per passenger of a 777 and 38 t of CO₂ per seat; Almaty ranks last of six candidate hubs but holds the long-haul niche',
+    ],
+    stack: ['Python', 'NumPy', 'SciPy', 'Next.js', 'TypeScript', 'Three.js', 'GSAP'],
+    links: [{ label: 'Live site', href: 'https://almaty-suborbital-hub.vercel.app' }],
+    meta: ['Aerospace', 'Research', 'Data viz'],
+    year: '2026',
+    role: 'Co-author — model, analysis, site',
+    team: 'With Georgy Lakhonin · Lyceum No. 166 · supervisor A. V. Berkman',
+  },
+  {
+    slug: 'bashir-co',
+    index: '03',
     name: 'BASHIR&CO',
     pixelWord: 'LUXURY',
     tagline: 'Cinematic website for a private luxury sourcing house',
@@ -94,6 +118,7 @@ export const PROJECTS: Project[] = [
 ]
 
 export type Award = {
+  id: string
   rank: string
   title: string
   detail: string
@@ -102,24 +127,28 @@ export type Award = {
 
 export const AWARDS: Award[] = [
   {
+    id: 'techvision-2026',
     rank: '1st',
     title: 'TechVision Hackathon 2026',
     detail: 'Smart City & GreenTech track. Team Chilli Express, Nazarbayev University, Astana. Project: AUA.',
     date: '27.07.2026',
   },
   {
+    id: 'future-with-ai-2025',
     rank: '1st',
     title: 'Future with AI 2025',
     detail: 'International hackathon, UX/UI track, Senior level.',
     date: '2025',
   },
   {
+    id: 'zertte-2025',
     rank: '2nd',
     title: 'ZERTTE Championship 2025',
     detail: 'Microcontrollers category.',
     date: '2025',
   },
   {
+    id: 'teniz-conference-2026',
     rank: '2nd',
     title: 'AI-Physics-Math-Chemistry-Tech Conference',
     detail:
@@ -127,18 +156,21 @@ export const AWARDS: Award[] = [
     date: '11.03.2026',
   },
   {
+    id: 'robotics-for-good-2025',
     rank: 'Part.',
     title: 'Robotics for Good Youth Challenge',
     detail: 'AI for Good Impact Initiative × Haileybury Almaty × DARYN.',
     date: '22.11.2025',
   },
   {
+    id: 'ionosphere-2025',
     rank: 'Cert',
     title: 'Institute of Ionosphere RK',
     detail: 'Certificate of participation.',
     date: '28.05.2025',
   },
   {
+    id: 'atu-2026',
     rank: 'Cert',
     title: 'Almaty Technological University',
     detail:

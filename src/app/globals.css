@@ -66,6 +66,19 @@
   padding-inline: clamp(1.25rem, 3.2vw, 3.5rem);
 }
 
+/* Hide reveal targets from the first paint so server-rendered text doesn't flash before the
+   scripts hide it and animate it back in. Only when scripts run and motion is allowed. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal='fade'],
+  [data-reveal='lines'] {
+    visibility: hidden;
+  }
+  [data-reveal='rule'] {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+}
+
 /* Lines produced by SplitText get a mask so they can rise from below. */
 .line-mask {
   overflow: clip;
@@ -73,11 +86,14 @@
   margin-bottom: -0.06em;
 }
 
-/* Film grain over everything; static, so it costs nothing per frame. */
+/* Film grain over everything. The layer is only 120% of the viewport (the jitter stays inside
+   that margin) and moves by transform, so it is rasterised once and then just composited. */
 .grain::after {
   content: '';
   position: fixed;
-  inset: -50%;
+  inset: -10%;
+  will-change: transform;
+  contain: strict;
   z-index: 60;
   pointer-events: none;
   opacity: 0.07;
@@ -87,10 +103,10 @@
 
 @keyframes grain {
   0% { transform: translate(0, 0); }
-  20% { transform: translate(-3%, 2%); }
-  40% { transform: translate(2%, -3%); }
-  60% { transform: translate(-2%, -1%); }
-  80% { transform: translate(3%, 3%); }
+  20% { transform: translate(-4%, 3%); }
+  40% { transform: translate(3%, -4%); }
+  60% { transform: translate(-3%, -2%); }
+  80% { transform: translate(4%, 4%); }
   100% { transform: translate(0, 0); }
 }
 

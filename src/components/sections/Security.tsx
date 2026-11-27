@@ -56,7 +56,7 @@ export default function Security() {
                 <span className="size-2 rounded-full bg-signal" />
               </span>
             </figcaption>
-            <pre className="overflow-x-auto p-5 text-[0.8rem] leading-[1.75] md:text-sm">
+            <pre className="overflow-x-auto p-4 text-[0.7rem] leading-[1.75] sm:p-5 sm:text-[0.8rem] md:text-sm">
               <code>
                 {HMAC_SNIPPET.split('\n').map((line, i) => (
                   <span key={i} className="block">

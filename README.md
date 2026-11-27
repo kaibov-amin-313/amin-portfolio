@@ -18,12 +18,25 @@ Deploys to Vercel as a Next.js app (`vercel.json` pins the framework preset).
 The hero is a frame sequence drawn on a canvas and scrubbed by scroll. To use a new clip:
 
 ```bash
-npm run frames -- media/your-clip.mp4            # defaults: 1440px wide, source fps, WebP q72
-npm run frames -- media/your-clip.mp4 --fps=30 --width=1600
+npm run frames -- media/your-clip.mp4            # landscape 1280w + portrait 9:16 crop, source fps
+npm run frames -- media/your-clip.mp4 --fps=30
 ```
 
-This rewrites `public/frames/` and `src/lib/frames.ts`. Aim for 80–150 frames; the captions in
-`HERO_CHAPTERS` (`src/content.ts`) appear at roughly the first, middle and last third of the clip.
+This rewrites `public/frames/{landscape,portrait}/` and `src/lib/frames.ts`. Aim for 80–150 frames; the
+captions in `HERO_CHAPTERS` (`src/content.ts`) appear at roughly the first, middle and last third of the
+clip. Every 4th frame gates the preloader; the rest stream in afterwards.
+
+## Award certificates
+
+Put scans or photos in `media/certificates/`, named after the award's `id` in `src/content.ts`
+(`techvision-2026.pdf`, `techvision-2026.jpg`, `techvision-2026-2.jpg`, …), then run:
+
+```bash
+npm run certificates
+```
+
+Photos become WebP (max 1800px) in `public/certificates/`, PDFs are copied as is, and each award with
+files gets a "View" / "View PDF" button that opens them in an in-page viewer. Export iPhone HEIC as JPG first.
 
 ## Structure
 

@@ -47,7 +47,7 @@ export default async function ProjectPage({ params }: PageProps<'/projects/[slug
                 ['Year', p.year],
                 ['Role', p.role],
                 ['Field', p.meta.join(' · ')],
-                ['Recognition', p.award ?? '—'],
+                p.team ? ['Team', p.team] : ['Recognition', p.award ?? '—'],
               ].map(([k, v]) => (
                 <div key={k} data-reveal="fade">
                   <dt className="label">{k}</dt>
